@@ -246,7 +246,6 @@ fn main() {
         .fill_line(11, 1, 15)
         .fill_line(12, 0, 9)
         .fill_line(13, 0, 2)
-
     ;
     mario.render();
 }
