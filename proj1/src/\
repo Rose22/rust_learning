@@ -1,0 +1,29 @@
+fn first_func(arg: &str) {
+    println!("omg its a rusty function! and the argument was: {}", arg);
+    return true;
+}
+
+fn main() {
+    let name = "Rosa";
+
+    println!("Hello, world!");
+    println!("My name is {}", name);
+
+    /*
+    loop {
+        println!("This is like while (true), but rustier!");
+    }
+    */
+
+    /*
+    while true {
+        println!("This is actually while true!");
+    }
+    */
+
+    for i in 1..10 {
+        println!("For loops are pretty simple. count is {}", i);
+    }
+
+    first_func("rustiness");
+}
