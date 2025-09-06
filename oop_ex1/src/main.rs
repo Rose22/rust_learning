@@ -1,51 +1,24 @@
-struct FirstClass {
-}
-impl FirstClass {
-    fn first_method(&self, a_number: i32) -> i32 {
-        return a_number+8;
-    }
-}
-
 /* 
  * basic X, Y position in 2D space
  */
-struct Position2D {
-    x: i32,
-    y: i32,
+struct Pos2D {
+    x: u8,
+    y: u8,
 }
 
 /* 
- * X, Y, Z position in 3D space
+ * a 2D shape
  */
-/*
-struct Position3D {
-    x: i32,
-    y: i32,
-    z: i32,
-}
-*/
-
 struct Shape2D {
-    grid_size: Position2D,
-    vertices: Vec<Position2D>,
+    grid_size: Pos2D,
+    vertices: Vec<Pos2D>,
 }
+
 impl Shape2D {
     fn draw(&self) {
-        /*
-        // get grid size from maximum X and Y values
-        let mut max_x = 0;
-        let mut max_y = 0;
-        for vertice in &self.vertices {
-            if vertice.x > max_x { max_x = vertice.x; }
-            if vertice.y > max_y { max_y = vertice.y; }
-        }
-        */
-
-        // loop through every line (Y position)
-
         // get the shape's min and max Y
-        let mut min_y: i32 = 0;
-        let mut max_y: i32 = 0;
+        let mut min_y: u8 = 0;
+        let mut max_y: u8 = 0;
         let mut min_y_set: bool = false;
         for cursor_y in 0..=self.grid_size.y {
             for vertice in &self.vertices {
@@ -60,8 +33,9 @@ impl Shape2D {
             }
         }
 
-        let mut min_x: i32 = 0;
-        let mut max_x: i32 = 0;
+        let mut min_x: u8 = 0;
+        let mut max_x: u8 = 0;
+        // loop through every line (Y) of the grid
         for cursor_y in 0..=self.grid_size.y {
             // within every line, loop through every horizontal position (X)
 
@@ -91,78 +65,91 @@ impl Shape2D {
                 // fill up empty space when position doesn't match
                 if !found_vert { 
                     if 
-                        cursor_x > min_x && cursor_x < max_x
-                        /*
+                        cursor_x >= min_x && cursor_x <= max_x
                         &&
-                        cursor_y > min_y && cursor_y < max_y 
-                        */
+                        cursor_y >= min_y && cursor_y <= max_y 
                     {
                         // we're inside the shape
                         if cursor_y == min_y || cursor_y == max_y {
                             // we're at the top or bottom edge
                             print!("-");
-                        } else {
+                        }
+                        else if cursor_x == min_x || cursor_x == max_x {
+                            // we're at the left or right edge
+                            print!("|");
+                        }
+                        else {
                             // we're somewhere inbetween the left and right edge
                             print!(".");
                         }
-                    } else if cursor_x == min_x || cursor_x == max_x {
-                        print!("|");
                     } else {
                         // we're in blank space
                         print!(" ");
                     }
                 }
             }
-            print!(" minX:{min_x},maxX:{max_x}");
+
+            // print!(" minX:{min_x},maxX:{max_x}");
             println!();
         }
 
+        /*
         println!("min_y: {min_y}, max_y: {max_y}");
 
         for vertice in &self.vertices {
             println!("vertice [X:{0}, Y:{1}]", vertice.x, vertice.y);
         }
+        */
     }
 }
 
 fn main() {
-    let first_instance = FirstClass{};
-    // println!("{}", first_instance.first_method(8));
-
-    println!("line");
+    println!("line:");
     let line = Shape2D{
-        grid_size: Position2D{x:30, y:0},
+        grid_size: Pos2D{x:30, y:0},
         vertices: vec![
-            Position2D{x:5, y:0},
-            Position2D{x:25, y:0},
+            Pos2D{x:5, y:0},
+            Pos2D{x:25, y:0},
         ]
     };
     line.draw();
     println!();
 
-    println!("square");
+    println!("square:");
     let square = Shape2D{
-        grid_size: Position2D{x:30, y:10},
+        grid_size: Pos2D{x:30, y:10},
         vertices: vec![
-            Position2D{x:0, y:0},
-            Position2D{x:30, y:0},
-            Position2D{x:0, y:10},
-            Position2D{x:30, y:10},
+            Pos2D{x:5, y:0},
+            Pos2D{x:20, y:0},
+            Pos2D{x:5, y:10},
+            Pos2D{x:20, y:10},
         ]
     };
     square.draw();
     println!();
 
-    println!("weird shape lol");
-    let weird_shape = Shape2D{
-        grid_size: Position2D{x:10, y:5},
+    println!("triangle:");
+    let triangle = Shape2D{
+        grid_size: Pos2D{x:30, y:5},
         vertices: vec![
-            Position2D{x:2, y:0},
-            Position2D{x:4, y: 0},
-            Position2D{x:2, y:3},
-            Position2D{x:5, y:3},
-            Position2D{x:1, y:5},
-            Position2D{x:10, y:5},
+            Pos2D{x:15, y:0},
+            Pos2D{x:0, y:5},
+            Pos2D{x:30, y:5},
+        ]
+    };
+    triangle.draw();
+    println!();
+
+    println!("weird shape lol:");
+    let weird_shape = Shape2D{
+        grid_size: Pos2D{x:10, y:5},
+        vertices: vec![
+            Pos2D{x:2, y:0},
+            Pos2D{x:4, y: 0},
+            Pos2D{x:2, y:3},
+            Pos2D{x:5, y:3},
+            Pos2D{x:1, y:5},
+            Pos2D{x:10, y:5},
         ]
     };
     weird_shape.draw();
