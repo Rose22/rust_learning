@@ -13,9 +13,8 @@ struct Shape2D {
     grid_size: Pos2D,
     vertices: Vec<Pos2D>,
 }
-
 impl Shape2D {
-    fn draw(&self) {
+    fn render(&self) {
         // get the shape's min and max Y
         let mut min_y: u8 = 0;
         let mut max_y: u8 = 0;
@@ -80,7 +79,7 @@ impl Shape2D {
                         }
                         else {
                             // we're somewhere inbetween the left and right edge
-                            print!("~");
+                            print!(".");
                         }
                     } else {
                         // we're in blank space
@@ -103,6 +102,62 @@ impl Shape2D {
     }
 }
 
+/*
+ * pixel grid
+ */
+struct Pix2D {
+    grid_size: Pos2D,
+    grid: Vec<Pos2D>,
+}
+impl Pix2D {
+    pub fn new(x: u8, y: u8) -> Self {
+        return Self {
+            grid_size: Pos2D{x, y},
+            grid: vec![],
+        }
+    }
+
+    fn fill(&mut self, y: u8, x: u8) -> &mut Self {
+        if x > self.grid_size.x || y > self.grid_size.y {
+            panic!("out of grid bounds");
+        }
+        self.grid.push(Pos2D{x,y});
+        return self;
+    }
+
+    /*
+    fn fill_list(&mut self, list: Vec<(u8, u8)>) {
+        for pos in list {
+            self.fill(pos.1, pos.0);
+        }
+    }
+    */
+
+    fn fill_line(&mut self, y: u8, from_x: u8, to_x: u8) -> &mut Self {
+        for x in from_x..=to_x {
+            self.fill(y,x);
+        }
+
+        return self;
+    }
+
+    fn render(&mut self) {
+        for y in 0..=self.grid_size.y {
+            for x in 0..=self.grid_size.x {
+                let mut found: bool = false;
+                for pixel in &self.grid {
+                    if pixel.x == x && pixel.y == y {
+                        print!("o");
+                        found = true;
+                    }
+                }
+                if !found { print!("."); }
+            }
+            println!();
+        }
+    }
+}
+
 fn main() {
     let line = Shape2D{
         grid_size: Pos2D{x:30, y:0},
@@ -112,7 +167,7 @@ fn main() {
         ]
     };
     println!("line:");
-    line.draw();
+    line.render();
     println!();
 
     let square = Shape2D{
@@ -125,7 +180,7 @@ fn main() {
         ]
     };
     println!("square:");
-    square.draw();
+    square.render();
     println!();
 
     let triangle = Shape2D{
@@ -137,7 +192,7 @@ fn main() {
         ]
     };
     println!("triangle:");
-    triangle.draw();
+    triangle.render();
     println!();
 
     let weird_shape = Shape2D{
@@ -152,43 +207,46 @@ fn main() {
         ]
     };
     println!("weird shape lol:");
-    weird_shape.draw();
+    weird_shape.render();
     println!();
 
-    let mario = Shape2D{
-        grid_size: Pos2D{x:20, y:10},
-        vertices: vec![
-            // head
-            Pos2D{x:5,y:0},
-            Pos2D{x:9,y:0},
+    println!("mario!");
+    let mut mario = Pix2D::new(15,13);
+    mario
+        // cap
+        .fill_line(0, 5, 9)
+        .fill_line(1, 4, 12)
 
-            Pos2D{x:4,y:1},
-            Pos2D{x:13,y:1},
+        // head
+        .fill_line(2, 4, 10)
+        .fill_line(3, 3, 12)
+        .fill_line(4, 3, 13)
+        .fill_line(5, 3, 12)
+        .fill_line(6, 5, 11)
 
-            Pos2D{x:4,y:2},
-            Pos2D{x:10,y:2},
+        // body
+        .fill_line(7, 1, 12)
+        .fill_line(8, 1, 11)
+        .fill_line(9, 2, 11)
 
-            Pos2D{x:3,y:3},
-            Pos2D{x:13,y:3},
+        // hand & arm
+        .fill_line(0, 12, 14)
+        .fill_line(1, 13, 14)
+        .fill_line(2, 12, 14)
+        .fill_line(3, 13, 14)
+        .fill(4, 14)
+        .fill(5, 13)
+        .fill_line(6, 12, 13)
 
-            Pos2D{x:3,y:4},
-            Pos2D{x:14,y:4},
+        // legs
+        .fill(7, 15)
+        .fill_line(8, 14, 15)
+        .fill_line(9, 12, 15)
+        .fill_line(10, 4, 15)
+        .fill_line(11, 1, 15)
+        .fill_line(12, 0, 9)
+        .fill_line(13, 0, 2)
 
-            Pos2D{x:3,y:5},
-            Pos2D{x:12,y:5},
-
-            Pos2D{x:5,y:6},
-            Pos2D{x:11,y:6},
-
-            // body
-            Pos2D{x:1,y:7},
-            Pos2D{x:12,y:7},
-
-            Pos2D{x:1,y:8},
-            Pos2D{x:11,y:8},
-        ]
-    };
-    println!("mario! ..sorta");
-    println!();
-    mario.draw();
+    ;
+    mario.render();
 }
