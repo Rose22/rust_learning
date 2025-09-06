@@ -10,46 +10,54 @@ struct Pos2D {
  * a 2D shape
  */
 struct Shape2D {
-    grid_size: Pos2D,
     vertices: Vec<Pos2D>,
 }
 impl Shape2D {
-    fn render(&self) {
-        // get the shape's min and max Y
-        let mut min_y: u8 = 0;
-        let mut max_y: u8 = 0;
-        let mut min_y_set: bool = false;
-        for cursor_y in 0..=self.grid_size.y {
-            for vertice in &self.vertices {
-                if cursor_y == vertice.y {
-                    if !min_y_set {
-                        min_y = vertice.y;
-                        min_y_set = true;
-                    }
+    pub fn new() -> Self {
+        return Self {
+            vertices: vec![],
+        }
+    }
 
-                    max_y = vertice.y;
-                }
-            }
+    pub fn add_vertice(&mut self, x: u8, y: u8) -> &mut Self {
+        self.vertices.push(Pos2D{x,y});
+        return self
+    }
+
+    fn render(&self) {
+        /*
+         * get the shape's max X and Y (to determine grid size)
+         * as well as min Y (to determine where the shape starts)
+         */
+        let mut grid_max_x: u8 = 0;
+        let mut grid_max_y: u8 = 0;
+        let mut grid_min_y: u8 = 0;
+        let mut grid_min_y_found: bool = false;
+        for vertice in &self.vertices {
+            if !grid_min_y_found { grid_min_y = vertice.y; grid_min_y_found = true; }
+
+            if vertice.x > grid_max_x { grid_max_x = vertice.x; }
+            if vertice.y > grid_max_y { grid_max_y = vertice.y; }
         }
 
-        let mut min_x: u8 = 0;
-        let mut max_x: u8 = 0;
+        let mut line_min_x: u8 = 0;
+        let mut line_max_x: u8 = 0;
         // loop through every line (Y) of the grid
-        for cursor_y in 0..=self.grid_size.y {
+        for cursor_y in 0..=grid_max_y {
             // within every line, loop through every horizontal position (X)
 
             // first, get a line's min and max X so that we can fill up the shape
-            let mut min_x_set: bool = false;
+            let mut line_min_x_found: bool = false;
             for vertice in &self.vertices {
                 if cursor_y == vertice.y {
-                    if !min_x_set { min_x = vertice.x; min_x_set = true; }
-                    if vertice.x != max_x { max_x = vertice.x; }
+                    if !line_min_x_found { line_min_x = vertice.x; line_min_x_found = true; }
+                    if vertice.x != line_max_x { line_max_x = vertice.x; }
                 }
-                // we preserve the min_x if a line has no vertices
+                // we preserve the line_min_x if a line has no vertices
                 // that way, it remembers
             }
 
-            for cursor_x in 0..=self.grid_size.x {
+            for cursor_x in 0..=grid_max_x {
                 let mut found_vert = false;
 
                 // on each position, check all vertices to see if any X&Y position matches
@@ -63,17 +71,14 @@ impl Shape2D {
 
                 // fill up empty space when position doesn't match
                 if !found_vert { 
-                    if 
-                        cursor_x >= min_x && cursor_x <= max_x
-                        &&
-                        cursor_y >= min_y && cursor_y <= max_y 
-                    {
+                    if cursor_x >= line_min_x && cursor_x <= line_max_x {
                         // we're inside the shape
-                        if cursor_y == min_y || cursor_y == max_y {
+                        //
+                        if cursor_y == grid_min_y || cursor_y == grid_max_y {
                             // we're at the top or bottom edge
                             print!("-");
                         }
-                        else if cursor_x == min_x || cursor_x == max_x {
+                        else if cursor_x == line_min_x || cursor_x == line_max_x {
                             // we're at the left or right edge
                             print!("|");
                         }
@@ -88,7 +93,7 @@ impl Shape2D {
                 }
             }
 
-            // print!(" minX:{min_x},maxX:{max_x}");
+            // print!(" minX:{line_min_x},maxX:{line_max_x}");
             println!();
         }
 
@@ -159,57 +164,6 @@ impl Pix2D {
 }
 
 fn main() {
-    let line = Shape2D{
-        grid_size: Pos2D{x:30, y:0},
-        vertices: vec![
-            Pos2D{x:5, y:0},
-            Pos2D{x:25, y:0},
-        ]
-    };
-    println!("line:");
-    line.render();
-    println!();
-
-    let square = Shape2D{
-        grid_size: Pos2D{x:30, y:10},
-        vertices: vec![
-            Pos2D{x:5, y:0},
-            Pos2D{x:20, y:0},
-            Pos2D{x:5, y:10},
-            Pos2D{x:20, y:10},
-        ]
-    };
-    println!("square:");
-    square.render();
-    println!();
-
-    let triangle = Shape2D{
-        grid_size: Pos2D{x:30, y:5},
-        vertices: vec![
-            Pos2D{x:15, y:0},
-            Pos2D{x:0, y:5},
-            Pos2D{x:30, y:5},
-        ]
-    };
-    println!("triangle:");
-    triangle.render();
-    println!();
-
-    let weird_shape = Shape2D{
-        grid_size: Pos2D{x:10, y:5},
-        vertices: vec![
-            Pos2D{x:2, y:0},
-            Pos2D{x:4, y: 0},
-            Pos2D{x:2, y:3},
-            Pos2D{x:5, y:3},
-            Pos2D{x:1, y:5},
-            Pos2D{x:10, y:5},
-        ]
-    };
-    println!("weird shape lol:");
-    weird_shape.render();
-    println!();
-
     println!("mario!");
     let mut mario = Pix2D::new(15,13);
     mario
@@ -248,4 +202,106 @@ fn main() {
         .fill_line(13, 0, 2)
     ;
     mario.render();
+
+    println!();
+
+    println!("line:");
+    let mut line = Shape2D::new();
+    line
+        .add_vertice(1,0)
+        .add_vertice(30,0)
+    .render();
+    println!();
+
+    println!("square:");
+    let mut square = Shape2D::new();
+    square
+        .add_vertice(1,0)
+        .add_vertice(10,0)
+        .add_vertice(1,3)
+        .add_vertice(10,3)
+    .render();
+    println!();
+
+    println!("triangle:");
+    let mut triangle = Shape2D::new();
+    triangle
+        .add_vertice(5,0)
+        .add_vertice(0,3)
+        .add_vertice(10,3)
+    .render();
+    println!();
+
+    println!("hexagon:");
+    let mut hexagon = Shape2D::new();
+    hexagon
+        // top edge
+        .add_vertice(10,0)
+        .add_vertice(20,0)
+
+        // slope (top left)
+        .add_vertice(7,1)
+        .add_vertice(3,2)
+        // slope (bottom left)
+        .add_vertice(3,7)
+        .add_vertice(7,8)
+
+        // left edge
+        .add_vertice(0, 3)
+        .add_vertice(0, 6)
+
+        // slope (top right)
+        .add_vertice(23,1)
+        .add_vertice(27,2)
+        // slope (bottom right)
+        .add_vertice(27,7)
+        .add_vertice(23,8)
+
+        // right edge
+        .add_vertice(30, 3)
+        .add_vertice(30, 6)
+
+        // bottom edge
+        .add_vertice(10, 9)
+        .add_vertice(20, 9)
+    .render();
+    println!("super hexagon?!");
+    println!();
+
+    println!("bottle");
+    let mut bottle = Shape2D::new();
+    bottle
+        // bottle opening
+        .add_vertice(4,0)
+        .add_vertice(6,0)
+        .add_vertice(4,3)
+        .add_vertice(6,3)
+
+        // slope
+        .add_vertice(3,4)
+        .add_vertice(7,4)
+        .add_vertice(1,5)
+        .add_vertice(9,5)
+
+        // body
+        .add_vertice(1,10)
+        .add_vertice(9,10)
+    .render();
+    println!();
+
+    println!("letter R");
+    let mut letter_r = Shape2D::new();
+    letter_r
+        .add_vertice(0,0)
+        .add_vertice(15,0)
+
+        .add_vertice(0,1)
+        .add_vertice(15,1)
+
+        .add_vertice(0,2)
+        .add_vertice(4,2)
+
+        .add_vertice(0,7)
+        .add_vertice(4,7)
+    .render();
 }
