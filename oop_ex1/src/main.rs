@@ -44,7 +44,7 @@ impl Shape2D {
             for vertice in &self.vertices {
                 if cursor_y == vertice.y {
                     if !min_x_set { min_x = vertice.x; min_x_set = true; }
-                    if vertice.x > max_x { max_x = vertice.x; }
+                    if vertice.x != max_x { max_x = vertice.x; }
                 }
                 // we preserve the min_x if a line has no vertices
                 // that way, it remembers
@@ -80,7 +80,7 @@ impl Shape2D {
                         }
                         else {
                             // we're somewhere inbetween the left and right edge
-                            print!(".");
+                            print!("~");
                         }
                     } else {
                         // we're in blank space
@@ -104,7 +104,6 @@ impl Shape2D {
 }
 
 fn main() {
-    println!("line:");
     let line = Shape2D{
         grid_size: Pos2D{x:30, y:0},
         vertices: vec![
@@ -112,10 +111,10 @@ fn main() {
             Pos2D{x:25, y:0},
         ]
     };
+    println!("line:");
     line.draw();
     println!();
 
-    println!("square:");
     let square = Shape2D{
         grid_size: Pos2D{x:30, y:10},
         vertices: vec![
@@ -125,10 +124,10 @@ fn main() {
             Pos2D{x:20, y:10},
         ]
     };
+    println!("square:");
     square.draw();
     println!();
 
-    println!("triangle:");
     let triangle = Shape2D{
         grid_size: Pos2D{x:30, y:5},
         vertices: vec![
@@ -137,10 +136,10 @@ fn main() {
             Pos2D{x:30, y:5},
         ]
     };
+    println!("triangle:");
     triangle.draw();
     println!();
 
-    println!("weird shape lol:");
     let weird_shape = Shape2D{
         grid_size: Pos2D{x:10, y:5},
         vertices: vec![
@@ -152,5 +151,44 @@ fn main() {
             Pos2D{x:10, y:5},
         ]
     };
+    println!("weird shape lol:");
     weird_shape.draw();
+    println!();
+
+    let mario = Shape2D{
+        grid_size: Pos2D{x:20, y:10},
+        vertices: vec![
+            // head
+            Pos2D{x:5,y:0},
+            Pos2D{x:9,y:0},
+
+            Pos2D{x:4,y:1},
+            Pos2D{x:13,y:1},
+
+            Pos2D{x:4,y:2},
+            Pos2D{x:10,y:2},
+
+            Pos2D{x:3,y:3},
+            Pos2D{x:13,y:3},
+
+            Pos2D{x:3,y:4},
+            Pos2D{x:14,y:4},
+
+            Pos2D{x:3,y:5},
+            Pos2D{x:12,y:5},
+
+            Pos2D{x:5,y:6},
+            Pos2D{x:11,y:6},
+
+            // body
+            Pos2D{x:1,y:7},
+            Pos2D{x:12,y:7},
+
+            Pos2D{x:1,y:8},
+            Pos2D{x:11,y:8},
+        ]
+    };
+    println!("mario! ..sorta");
+    println!();
+    mario.draw();
 }
